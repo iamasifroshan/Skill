@@ -14,20 +14,28 @@ export const authOptions: NextAuthOptions = {
                 password: { label: "Password", type: "password" },
             },
             async authorize(credentials) {
-                if (!credentials?.email || !credentials?.password) return null;
+                if (!credentials?.email || !credentials?.password) {
+                    throw new Error("Missing credentials");
+                }
 
                 const email = credentials.email.trim().toLowerCase();
 
                 // Direct Firestore fetch
                 const userDoc = await getDoc(doc(db, "users", email));
 
-                if (!userDoc.exists()) return null;
+                if (!userDoc.exists()) {
+                    throw new Error("User not found");
+                }
 
                 const user = userDoc.data();
-                if (!user || !user.password) return null;
+                if (!user || !user.password) {
+                    throw new Error("User not found");
+                }
 
                 const isValid = await bcrypt.compare(credentials.password, user.password);
-                if (!isValid) return null;
+                if (!isValid) {
+                    throw new Error("Incorrect password");
+                }
 
                 return {
                     id: email,

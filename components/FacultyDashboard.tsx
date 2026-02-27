@@ -359,7 +359,7 @@ export default function FacultyDashboard({ teacherName, teacherEmail }: { teache
                 <div style={CARD}>
                     <SectionTitle icon={FileText} label="Assignments & Tests" sub="Create new academic assessments and quickly enter marks." />
                     <div style={{ display: "flex", gap: "16px", flexWrap: "wrap", marginBottom: 24 }}>
-                        <button style={{ padding: "12px 20px", background: V.accent, color: "#fff", border: "none", borderRadius: "10px", fontWeight: 700, cursor: "pointer", display: "flex", alignItems: "center", gap: 8 }}>
+                        <button onClick={() => alert("Create New Assessment panel opening soon...")} style={{ padding: "12px 20px", background: V.accent, color: "#fff", border: "none", borderRadius: "10px", fontWeight: 700, cursor: "pointer", display: "flex", alignItems: "center", gap: 8 }}>
                             <Plus size={18} /> Create New Assessment
                         </button>
                     </div>
@@ -426,9 +426,17 @@ export default function FacultyDashboard({ teacherName, teacherEmail }: { teache
                     <div style={{ display: "flex", gap: "24px" }}>
                         <div style={{ flex: 1, border: `1px solid ${V.border}`, borderRadius: "12px", padding: "20px" }}>
                             <h3 style={{ margin: "0 0 16px", color: V.text, fontSize: "1rem" }}>Class Announcement</h3>
-                            <textarea placeholder="Write announcement here..." style={{ width: "100%", height: "120px", background: V.searchBg, border: `1px solid ${V.border}`, borderRadius: "8px", padding: "12px", color: V.text, outline: "none", resize: "none", marginBottom: "16px", fontFamily: "inherit" }} />
-                            <button style={{ background: V.accent, color: "#fff", border: "none", padding: "10px 20px", borderRadius: "8px", fontWeight: 700, cursor: "pointer", display: "flex", alignItems: "center", gap: "8px" }}>
-                                <Send size={16} /> Send to All Assgined Students
+                            <textarea id="announcement-textarea" value={chatMsg} onChange={e => setChatMsg(e.target.value)} placeholder="Write announcement here..." style={{ width: "100%", height: "120px", background: V.searchBg, border: `1px solid ${V.border}`, borderRadius: "8px", padding: "12px", color: V.text, outline: "none", resize: "none", marginBottom: "16px", fontFamily: "inherit" }} />
+                            <button onClick={() => {
+                                const val = (document.getElementById('announcement-textarea') as HTMLTextAreaElement)?.value || chatMsg;
+                                if (val.trim()) {
+                                    alert("Announcement sent to all assigned students: " + val);
+                                    setChatMsg("");
+                                } else {
+                                    alert("Please write a message first.");
+                                }
+                            }} style={{ background: V.accent, color: "#fff", border: "none", padding: "10px 20px", borderRadius: "8px", fontWeight: 700, cursor: "pointer", display: "flex", alignItems: "center", gap: "8px" }}>
+                                <Send size={16} /> Send to All Assigned Students
                             </button>
                         </div>
                     </div>

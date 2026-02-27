@@ -6,10 +6,7 @@ import { useRouter } from "next/navigation";
 import Link from "next/link";
 import { GraduationCap, Mail, Lock, ArrowRight, Loader2, User, BookOpen, Shield, ChevronDown } from "lucide-react";
 
-type Role = "STUDENT" | "FACULTY" | "ADMIN";
-
 export default function LoginPage() {
-  const [activeTab, setActiveTab] = useState<Role>("STUDENT");
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [loading, setLoading] = useState(false);
@@ -17,7 +14,7 @@ export default function LoginPage() {
   const [showDemoDropdown, setShowDemoDropdown] = useState(false);
   const router = useRouter();
 
-  const handleDemoSelect = (role: Role) => {
+  const handleDemoSelect = (role: string) => {
     switch (role) {
       case "ADMIN":
         setEmail("admin.admin@skillsync.com");
@@ -30,7 +27,6 @@ export default function LoginPage() {
         break;
     }
     setPassword("password123");
-    setActiveTab(role);
     setShowDemoDropdown(false);
   };
 
@@ -47,21 +43,14 @@ export default function LoginPage() {
       });
 
       if (result?.error) {
-        setError("Invalid email or password");
+        setError(result.error);
         setLoading(false);
       } else {
         const res = await fetch("/api/auth/session");
         const session = await res.json();
         const role = session?.user?.role;
 
-        let determinedRole = role;
-        if (!determinedRole) {
-          if (email.startsWith("admin.")) determinedRole = "ADMIN";
-          else if (email.startsWith("faculty.")) determinedRole = "FACULTY";
-          else determinedRole = "STUDENT";
-        }
-
-        if (determinedRole === "ADMIN") {
+        if (role === "ADMIN") {
           router.push("/dashboard/admin");
         } else {
           router.push("/dashboard");
@@ -90,30 +79,6 @@ export default function LoginPage() {
           </div>
           <h1>Welcome back</h1>
           <p>Sign in to your SkillSync account</p>
-        </div>
-
-        <div className="role-tabs">
-          <button
-            type="button"
-            className={`role-tab ${activeTab === 'STUDENT' ? 'active' : ''}`}
-            onClick={() => setActiveTab('STUDENT')}
-          >
-            <User size={16} /> Student
-          </button>
-          <button
-            type="button"
-            className={`role-tab ${activeTab === 'FACULTY' ? 'active' : ''}`}
-            onClick={() => setActiveTab('FACULTY')}
-          >
-            <BookOpen size={16} /> Faculty
-          </button>
-          <button
-            type="button"
-            className={`role-tab ${activeTab === 'ADMIN' ? 'active' : ''}`}
-            onClick={() => setActiveTab('ADMIN')}
-          >
-            <Shield size={16} /> Admin
-          </button>
         </div>
 
         <form onSubmit={handleSubmit} className="login-form">
@@ -297,49 +262,7 @@ export default function LoginPage() {
                     margin-bottom: 6px;
                 }
 
-                .login-header p {
-                    font-size: 0.88rem;
-                    color: #6b6b6b;
-                }
-                
-                .role-tabs {
-                    display: flex;
-                    gap: 8px;
-                    background: rgba(255, 255, 255, 0.04);
-                    padding: 6px;
-                    border-radius: 12px;
-                    margin-bottom: 24px;
-                    border: 1px solid rgba(255,255,255,0.05);
-                }
-                
-                .role-tab {
-                    flex: 1;
-                    display: flex;
-                    align-items: center;
-                    justify-content: center;
-                    gap: 6px;
-                    padding: 10px 0;
-                    background: transparent;
-                    border: none;
-                    border-radius: 8px;
-                    color: #6b6b6b;
-                    font-size: 0.8rem;
-                    font-weight: 700;
-                    cursor: pointer;
-                    transition: all 0.2s;
-                }
-                
-                .role-tab:hover {
-                    color: #fff;
-                }
-                
-                .role-tab.active {
-                    background: #3b82f6;
-                    color: #fff;
-                    box-shadow: 0 4px 12px rgba(59, 130, 246, 0.2);
-                }
 
-                .login-form {
                     display: flex;
                     flex-direction: column;
                     gap: 18px;
