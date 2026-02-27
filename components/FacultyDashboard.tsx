@@ -5,20 +5,14 @@ import Link from "next/link";
 import {
     Users, AlertTriangle, TrendingUp, Award, BookOpen,
     Search, ChevronUp, ChevronDown, Download,
-    Upload, Clock, Brain, BarChart2, Filter,
-    CheckCircle, FileText, Plus, X
+    BarChart2, Filter, Clock
 } from "lucide-react";
-import {
-    ResponsiveContainer, LineChart, Line, BarChart, Bar,
-    XAxis, YAxis, CartesianGrid, Tooltip, Legend,
-    PieChart, Pie, Cell
-} from "recharts";
 
 import { getMaterials, saveMaterial, type Material } from "@/lib/materialsStore";
 import { getStudentsForFacultyByEmail, getAllocations } from "@/lib/allocationStore";
 import StudentDetailsModal from "./StudentDetailsModal";
 import { db } from "@/lib/firebase";
-import { collection, onSnapshot, doc, updateDoc, writeBatch } from "firebase/firestore";
+import { collection, onSnapshot, doc, updateDoc } from "firebase/firestore";
 
 // ─── Types ───────────────────────────────────────────────────────────────────
 type SortKey = "name" | "roll" | "performance" | "attendance" | "risk";
@@ -30,12 +24,12 @@ const V = {
     text: "var(--ds-text, #fff)",
     dim: "var(--ds-text-dim, #6b6b6b)",
     muted: "var(--ds-text-muted, #3a3a3a)",
-    accent: "var(--ds-accent, #d4ff00)",
-    accentSoft: "var(--ds-accent-soft, rgba(212,255,0,0.06))",
-    accentBorder: "var(--ds-accent-border, rgba(212,255,0,0.12))",
+    accent: "var(--ds-accent)",
+    accentSoft: "var(--ds-accent-soft)",
+    accentBorder: "var(--ds-accent-border)",
     hover: "var(--ds-hover, rgba(255,255,255,0.04))",
-    surface: "var(--ds-surface, #111)",
-    searchBg: "var(--ds-search-bg, #111)",
+    surface: "var(--ds-surface, #ffffff)",
+    searchBg: "var(--ds-search-bg, #ffffff)",
 };
 const FONT_H = "var(--font-display, 'Outfit', sans-serif)";
 
@@ -47,23 +41,6 @@ const RISK_CFG: Record<string, { color: string; bg: string }> = {
 };
 
 const CLASSES = ["CSE-A (Year 2)", "CSE-B (Year 2)", "CSE-A (Year 3)", "All Classes"];
-
-const CLASS_TREND = [
-    { week: "Week 1", avg: 63, high: 82, low: 41 },
-    { week: "Week 2", avg: 65, high: 84, low: 43 },
-    { week: "Week 3", avg: 67, high: 85, low: 40 },
-    { week: "Week 4", avg: 69, high: 88, low: 42 },
-    { week: "Week 5", avg: 70, high: 90, low: 41 },
-    { week: "Week 6", avg: 70, high: 94, low: 41 },
-];
-
-const SUBJECT_AVG = [
-    { subject: "Math", avg: 70, classTarget: 75 },
-    { subject: "DS", avg: 68, classTarget: 75 },
-    { subject: "DBMS", avg: 73, classTarget: 75 },
-    { subject: "Networks", avg: 63, classTarget: 75 },
-    { subject: "OS", avg: 68, classTarget: 75 },
-];
 
 const CARD: React.CSSProperties = {
     background: V.card, border: `1px solid ${V.border}`,
@@ -228,6 +205,7 @@ export default function FacultyDashboard({ teacherName, teacherEmail }: { teache
 
     const extIcon: Record<string, string> = { PDF: "📄", DOC: "📝", DOCX: "📝", PPT: "📊", PPTX: "📊" };
     const [showModal, setShowModal] = useState(false);
+    const [isViewOnly, setIsViewOnly] = useState(false);
     const [selectedStudent, setSelectedStudent] = useState<any>(null);
 
     const handleSaveStudentDetails = (data: any) => {
@@ -237,8 +215,8 @@ export default function FacultyDashboard({ teacherName, teacherEmail }: { teache
         }
     };
 
-    const handleBulkAttendance = async () => {
-        const val = prompt("Enter attendance percentage for all students (0-100):");
+    const handleUpdateAttendance = async (student: any) => {
+        const val = prompt(`Enter new attendance percentage for ${student.name} (0-100):`, student.attendance);
         if (val === null) return;
         const att = parseInt(val);
         if (isNaN(att) || att < 0 || att > 100) {
@@ -246,17 +224,12 @@ export default function FacultyDashboard({ teacherName, teacherEmail }: { teache
             return;
         }
 
-        const batch = writeBatch(db);
-        MY_STUDENTS.forEach(student => {
-            const studentRef = doc(db, "students", student.email);
-            batch.update(studentRef, { attendance: att });
-        });
-
         try {
-            await batch.commit();
-            alert(`Attendance set to ${att}% for all ${MY_STUDENTS.length} students in real-time.`);
+            const studentRef = doc(db, "students", student.email);
+            await updateDoc(studentRef, { attendance: att });
+            alert(`Attendance for ${student.name} updated to ${att}% successfully!`);
         } catch (e) {
-            console.error("Bulk update failed:", e);
+            console.error("Attendance update failed:", e);
         }
     };
 
@@ -269,24 +242,16 @@ export default function FacultyDashboard({ teacherName, teacherEmail }: { teache
                     <div style={{ display: "flex", alignItems: "center", gap: 10, marginBottom: 6 }}>
                         <span style={{ width: 8, height: 8, borderRadius: "50%", background: V.accent, boxShadow: `0 0 8px ${V.accent}`, display: "inline-block" }} />
                         <span style={{ color: V.accent, fontSize: "0.8rem", fontWeight: 700, textTransform: "uppercase", letterSpacing: "0.08em", fontFamily: FONT_H }}>
-                            Faculty Dashboard — AI Class Management
+                            Faculty Dashboard — Student Management
                         </span>
                     </div>
                     <h1 style={{ fontFamily: FONT_H, fontSize: "1.9rem", fontWeight: 900, letterSpacing: "-0.03em", color: V.text, margin: 0 }}>
                         Welcome, <span className="text-gradient">{teacherName}</span>
                     </h1>
                     <p style={{ color: V.dim, marginTop: 6, fontSize: "0.9rem" }}>
-                        CSE Year 2 — Class analytics updated at 01:01 IST · AI risk analysis active
+                        CSE Year 2 — Class analytics updated at 01:01 IST
                     </p>
                 </div>
-                <button onClick={handleBulkAttendance} style={{
-                    background: V.accentSoft, border: `1px solid ${V.accentBorder}`, color: V.accent,
-                    padding: "8px 16px", borderRadius: "8px", fontSize: "0.85rem", fontWeight: 600,
-                    display: "flex", alignItems: "center", gap: "8px", cursor: "pointer",
-                    transition: "0.2s", height: "fit-content"
-                }} onMouseOver={(e) => e.currentTarget.style.background = "rgba(212,255,0,0.12)"} onMouseOut={(e) => e.currentTarget.style.background = V.accentSoft}>
-                    <Clock size={16} /> Bulk Attendance Update
-                </button>
             </div>
 
             {/* ─── 1. SUMMARY CARDS ───────────────────────────────── */}
@@ -311,72 +276,6 @@ export default function FacultyDashboard({ teacherName, teacherEmail }: { teache
                 ))}
             </div>
 
-            {/* ─── 2. CLASS PERFORMANCE ANALYTICS ────────────────── */}
-            <div>
-                <SectionTitle icon={BarChart2} label="Class Performance Analytics" sub="AI-tracked weekly trends and subject distribution" />
-                <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr 300px", gap: 20 }}>
-
-                    {/* Line chart — Class trend */}
-                    <div style={CARD}>
-                        <h3 style={{ fontFamily: FONT_H, margin: "0 0 4px", fontWeight: 800, color: V.text, fontSize: "0.95rem" }}>📈 Weekly Class Performance Trend</h3>
-                        <p style={{ margin: "0 0 18px", fontSize: "0.78rem", color: V.dim }}>Average, highest and lowest student score per week</p>
-                        <ResponsiveContainer width="100%" height={220}>
-                            <LineChart data={CLASS_TREND} margin={{ top: 5, right: 10, left: -10, bottom: 0 }}>
-                                <CartesianGrid strokeDasharray="3 3" stroke="rgba(255,255,255,0.03)" />
-                                <XAxis dataKey="week" tick={{ fill: V.muted, fontSize: 11 }} axisLine={false} tickLine={false} />
-                                <YAxis domain={[30, 100]} tick={{ fill: V.muted, fontSize: 11 }} axisLine={false} tickLine={false} />
-                                <Tooltip {...TT} />
-                                <Legend wrapperStyle={{ fontSize: "0.75rem", color: V.dim }} />
-                                <Line type="monotone" dataKey="avg" name="Class Avg" stroke="#d4ff00" strokeWidth={2.5} dot={{ r: 3, fill: "#d4ff00" }} />
-                                <Line type="monotone" dataKey="high" name="Top Score" stroke="#10b981" strokeWidth={1.5} strokeDasharray="5 3" dot={false} />
-                                <Line type="monotone" dataKey="low" name="Bottom Score" stroke="#ef4444" strokeWidth={1.5} strokeDasharray="5 3" dot={false} />
-                            </LineChart>
-                        </ResponsiveContainer>
-                    </div>
-
-                    {/* Bar chart — Subject averages */}
-                    <div style={CARD}>
-                        <h3 style={{ fontFamily: FONT_H, margin: "0 0 4px", fontWeight: 800, color: V.text, fontSize: "0.95rem" }}>📊 Subject-wise Class Average</h3>
-                        <p style={{ margin: "0 0 18px", fontSize: "0.78rem", color: V.dim }}>Average marks vs target (75%) per subject</p>
-                        <ResponsiveContainer width="100%" height={220}>
-                            <BarChart data={SUBJECT_AVG} margin={{ top: 5, right: 10, left: -10, bottom: 0 }}>
-                                <CartesianGrid strokeDasharray="3 3" stroke="rgba(255,255,255,0.03)" />
-                                <XAxis dataKey="subject" tick={{ fill: V.muted, fontSize: 11 }} axisLine={false} tickLine={false} />
-                                <YAxis domain={[0, 100]} tick={{ fill: V.muted, fontSize: 11 }} axisLine={false} tickLine={false} />
-                                <Tooltip {...TT} />
-                                <Legend wrapperStyle={{ fontSize: "0.75rem", color: V.dim }} />
-                                <Bar dataKey="avg" name="Class Avg" fill="#d4ff00" radius={[5, 5, 0, 0]} barSize={20} />
-                                <Bar dataKey="classTarget" name="Target" fill="rgba(255,255,255,0.06)" radius={[5, 5, 0, 0]} barSize={20} />
-                            </BarChart>
-                        </ResponsiveContainer>
-                    </div>
-
-                    {/* Pie chart — Risk distribution */}
-                    <div style={CARD}>
-                        <h3 style={{ fontFamily: FONT_H, margin: "0 0 4px", fontWeight: 800, color: V.text, fontSize: "0.95rem" }}>🎯 Risk Distribution</h3>
-                        <p style={{ margin: "0 0 14px", fontSize: "0.78rem", color: V.dim }}>Student risk level breakdown</p>
-                        <ResponsiveContainer width="100%" height={150}>
-                            <PieChart>
-                                <Pie data={riskPie} dataKey="value" cx="50%" cy="50%" innerRadius={40} outerRadius={65} paddingAngle={3}>
-                                    {riskPie.map((e, i) => <Cell key={i} fill={e.color} />)}
-                                </Pie>
-                                <Tooltip {...TT} />
-                            </PieChart>
-                        </ResponsiveContainer>
-                        <div style={{ display: "flex", flexDirection: "column", gap: 8, marginTop: 8 }}>
-                            {riskPie.map(r => (
-                                <div key={r.name} style={{ display: "flex", alignItems: "center", justifyContent: "space-between" }}>
-                                    <div style={{ display: "flex", alignItems: "center", gap: 8 }}>
-                                        <span style={{ width: 10, height: 10, borderRadius: "50%", background: r.color, display: "inline-block" }} />
-                                        <span style={{ fontSize: "0.8rem", color: V.dim }}>{r.name}</span>
-                                    </div>
-                                    <span style={{ fontWeight: 800, color: r.color, fontSize: "0.9rem" }}>{r.value}</span>
-                                </div>
-                            ))}
-                        </div>
-                    </div>
-                </div>
-            </div>
 
             {/* ─── 3. STUDENT TABLE ───────────────────────────────── */}
             <div style={CARD}>
@@ -442,9 +341,12 @@ export default function FacultyDashboard({ teacherName, teacherEmail }: { teache
                                                     {s.avatar}
                                                 </div>
                                                 <div>
-                                                    <Link href={`/dashboard/faculty/student/${s.id}`} style={{ color: V.text, fontWeight: 700, textDecoration: "none", fontSize: "0.9rem" }}>
+                                                    <span
+                                                        onClick={() => { setSelectedStudent(s); setIsViewOnly(true); setShowModal(true); }}
+                                                        style={{ color: V.text, fontWeight: 700, cursor: "pointer", fontSize: "0.9rem" }}
+                                                    >
                                                         {s.name}
-                                                    </Link>
+                                                    </span>
                                                     <div style={{ fontSize: "0.72rem", color: V.dim }}>{s.email}</div>
                                                 </div>
                                             </div>
@@ -476,14 +378,25 @@ export default function FacultyDashboard({ teacherName, teacherEmail }: { teache
                                             </div>
                                         </td>
                                         <td style={{ padding: "13px 14px", display: "flex", gap: "8px" }}>
-                                            <Link href={`/dashboard/faculty/student/${s.id}`} style={{ background: V.hover, border: `1px solid ${V.border}`, color: V.text, padding: "6px 13px", borderRadius: 8, fontSize: "0.78rem", fontWeight: 800, textDecoration: "none", whiteSpace: "nowrap" }}>
-                                                View
-                                            </Link>
                                             <button
-                                                onClick={() => { setSelectedStudent(s); setShowModal(true); }}
+                                                onClick={() => { setSelectedStudent(s); setIsViewOnly(true); setShowModal(true); }}
+                                                style={{ background: V.hover, border: `1px solid ${V.border}`, color: V.text, padding: "6px 13px", borderRadius: 8, fontSize: "0.78rem", fontWeight: 800, cursor: "pointer", whiteSpace: "nowrap" }}
+                                            >
+                                                View
+                                            </button>
+                                            <button
+                                                onClick={() => { setSelectedStudent(s); setIsViewOnly(false); setShowModal(true); }}
                                                 style={{ background: V.accentSoft, border: `1px solid ${V.accentBorder}`, color: V.accent, padding: "6px 13px", borderRadius: 8, fontSize: "0.78rem", fontWeight: 800, cursor: "pointer", whiteSpace: "nowrap" }}
                                             >
                                                 Edit Marks
+                                            </button>
+                                            <button
+                                                onClick={() => handleUpdateAttendance(s)}
+                                                style={{ background: "transparent", border: `1px solid ${V.border}`, color: V.dim, padding: "6px 13px", borderRadius: 8, fontSize: "0.78rem", fontWeight: 800, cursor: "pointer", whiteSpace: "nowrap", transition: "color 0.2s, border-color 0.2s" }}
+                                                onMouseOver={(e) => { e.currentTarget.style.color = V.text; e.currentTarget.style.borderColor = V.text; }}
+                                                onMouseOut={(e) => { e.currentTarget.style.color = V.dim; e.currentTarget.style.borderColor = V.border; }}
+                                            >
+                                                Attendance
                                             </button>
                                         </td>
                                     </tr>
@@ -497,167 +410,13 @@ export default function FacultyDashboard({ teacherName, teacherEmail }: { teache
                 </div>
             </div>
 
-            {/* ─── 4. AI INSIGHTS ROW ─────────────────────────────── */}
-            <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: 20 }}>
-                {/* At-risk alerts */}
-                <div style={CARD}>
-                    <SectionTitle icon={AlertTriangle} label="Immediate Action Required" sub="Students flagged by AI as high dropout risk" />
-                    <div style={{ display: "flex", flexDirection: "column", gap: 12 }}>
-                        {MY_STUDENTS.filter(s => s.risk === "High" || s.risk === "Medium").map(s => {
-                            const rc = RISK_CFG[s.risk];
-                            return (
-                                <div key={s.id} style={{ display: "flex", alignItems: "center", gap: 12, padding: "14px 16px", background: `${rc.color}08`, border: `1px solid ${rc.color}25`, borderRadius: 12, flexWrap: "wrap" }}>
-                                    <div style={{ width: 34, height: 34, borderRadius: "50%", background: s.avatarColor, display: "flex", alignItems: "center", justifyContent: "center", fontWeight: 800, flexShrink: 0 }}>{s.avatar}</div>
-                                    <div style={{ flex: 1 }}>
-                                        <Link href={`/dashboard/faculty/student/${s.id}`} style={{ fontWeight: 700, color: V.text, textDecoration: "none", fontSize: "0.9rem" }}>{s.name}</Link>
-                                        <div style={{ fontSize: "0.75rem", color: V.dim }}>Performance: {s.performance}% · Attendance: {s.attendance}%</div>
-                                    </div>
-                                    <span style={{ background: rc.bg, color: rc.color, padding: "4px 11px", borderRadius: 20, fontSize: "0.72rem", fontWeight: 800 }}>● {s.risk}</span>
-                                </div>
-                            );
-                        })}
-                    </div>
-                </div>
 
-                {/* AI teaching insights */}
-                <div style={CARD}>
-                    <SectionTitle icon={Brain} label="AI Teaching Insights" sub="Auto-generated recommendations for your class" />
-                    <div style={{ display: "flex", flexDirection: "column", gap: 12 }}>
-                        {[
-                            { tag: "Alert", text: "Networks subject average (63%) is below target. Consider a revision session on OSI Model & TCP/IP." },
-                            { tag: "Insight", text: "3 of 6 students show upward performance trajectory — engagement strategies are working." },
-                            { tag: "Action", text: "Rohan Das (CSE003) has declined 4% over 3 weeks. A one-on-one intervention is recommended." },
-                            { tag: "Trend", text: "Attendance below 75% for 2 students — auto-alert sent to academic office." },
-                        ].map((ins, i) => (
-                            <div key={i} style={{ display: "flex", gap: 12, padding: "13px 15px", background: V.accentSoft, borderRadius: 10, border: `1px solid ${V.accentBorder}` }}>
-                                <span style={{ background: V.accentBorder, color: V.accent, padding: "2px 8px", borderRadius: 5, fontSize: "0.65rem", fontWeight: 800, whiteSpace: "nowrap", alignSelf: "flex-start", marginTop: 2, fontFamily: FONT_H }}>{ins.tag}</span>
-                                <p style={{ fontSize: "0.83rem", color: V.text, lineHeight: 1.55, margin: 0, opacity: 0.85 }}>{ins.text}</p>
-                            </div>
-                        ))}
-                    </div>
-                </div>
-            </div>
 
-            {/* ─── 5. STUDY MATERIALS UPLOAD ──────────────────────── */}
-            <div style={CARD}>
-                <SectionTitle icon={Upload} label="Upload Study Materials" sub="Files appear instantly in Student Dashboard → Curriculum → Study Materials from Teacher" />
 
-                {uploadOk && (
-                    <div style={{ display: "flex", alignItems: "center", gap: 10, padding: "13px 16px", background: "rgba(16,185,129,0.08)", border: "1px solid rgba(16,185,129,0.2)", borderRadius: 11, marginBottom: 20, color: "#10b981", fontWeight: 700, fontSize: "0.88rem" }}>
-                        <CheckCircle size={17} /> Material uploaded! It now appears in the Student Curriculum page.
-                    </div>
-                )}
-                {uploadErr && (
-                    <div style={{ padding: "11px 16px", background: "rgba(239,68,68,0.08)", border: "1px solid rgba(239,68,68,0.15)", borderRadius: 11, marginBottom: 16, color: "#f87171", fontSize: "0.83rem" }}>
-                        {uploadErr}
-                    </div>
-                )}
-
-                <form onSubmit={handleUpload}>
-                    <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: 24 }}>
-                        {/* Left fields */}
-                        <div style={{ display: "flex", flexDirection: "column", gap: 14 }}>
-                            {[
-                                { label: "Material Title *", value: matTitle, set: setMatTitle, placeholder: "e.g., Week 4 – Network Layer Notes" },
-                                { label: "Description", value: matDesc, set: setMatDesc, placeholder: "Brief summary of this material…" },
-                            ].map(f => (
-                                <div key={f.label}>
-                                    <label style={{ fontSize: "0.75rem", fontWeight: 800, color: V.dim, textTransform: "uppercase", letterSpacing: "0.05em", display: "block", marginBottom: 7, fontFamily: FONT_H }}>{f.label}</label>
-                                    <input value={f.value} onChange={e => f.set(e.target.value)} placeholder={f.placeholder}
-                                        style={{ width: "100%", background: V.hover, border: `1px solid ${V.border}`, borderRadius: 10, padding: "11px 14px", color: V.text, fontSize: "0.88rem", outline: "none", fontFamily: "inherit", transition: "border-color 0.2s" }} />
-                                </div>
-                            ))}
-                            <div>
-                                <label style={{ fontSize: "0.75rem", fontWeight: 800, color: V.dim, textTransform: "uppercase", letterSpacing: "0.05em", display: "block", marginBottom: 7, fontFamily: FONT_H }}>Assign to Class</label>
-                                <select value={matClass} onChange={e => setMatClass(e.target.value)}
-                                    style={{ width: "100%", background: V.hover, border: `1px solid ${V.border}`, borderRadius: 10, padding: "11px 14px", color: V.text, fontSize: "0.88rem", outline: "none", fontFamily: "inherit" }}>
-                                    {CLASSES.map(c => <option key={c} value={c} style={{ background: "#1a1a2e" }}>{c}</option>)}
-                                </select>
-                            </div>
-                        </div>
-
-                        {/* Dropzone */}
-                        <div>
-                            <label style={{ fontSize: "0.75rem", fontWeight: 800, color: V.dim, textTransform: "uppercase", letterSpacing: "0.05em", display: "block", marginBottom: 7, fontFamily: FONT_H }}>Upload File * (PDF, DOC, PPT)</label>
-                            <div
-                                onDrop={e => { e.preventDefault(); const f = e.dataTransfer.files[0]; if (f) handleFile(f); }}
-                                onDragOver={e => e.preventDefault()}
-                                onClick={() => fileRef.current?.click()}
-                                style={{ border: `2px dashed ${matFile ? "#10b981" : V.border}`, borderRadius: 14, padding: "36px 16px", textAlign: "center", cursor: "pointer", background: matFile ? "rgba(16,185,129,0.04)" : V.hover, minHeight: 164, display: "flex", flexDirection: "column", alignItems: "center", justifyContent: "center", gap: 10, transition: "all 0.2s" }}
-                            >
-                                {matFile ? (
-                                    <>
-                                        <div style={{ fontSize: "2rem" }}>{extIcon[matFile.name.split(".").pop()?.toUpperCase() || ""] || "📁"}</div>
-                                        <div style={{ fontWeight: 700, color: V.text, fontSize: "0.9rem" }}>{matFile.name}</div>
-                                        <div style={{ fontSize: "0.75rem", color: V.dim }}>{(matFile.size / 1024).toFixed(1)} KB</div>
-                                        <button type="button" onClick={e => { e.stopPropagation(); setMatFile(null); }}
-                                            style={{ background: "rgba(239,68,68,0.08)", border: "1px solid rgba(239,68,68,0.15)", color: "#f87171", padding: "5px 12px", borderRadius: 7, cursor: "pointer", fontSize: "0.78rem", display: "flex", alignItems: "center", gap: 5 }}>
-                                            <X size={11} /> Remove
-                                        </button>
-                                    </>
-                                ) : (
-                                    <>
-                                        <div style={{ width: 50, height: 50, borderRadius: 12, background: V.accentSoft, border: `1px solid ${V.accentBorder}`, display: "flex", alignItems: "center", justifyContent: "center" }}>
-                                            <Upload size={22} color={V.accent} />
-                                        </div>
-                                        <div>
-                                            <p style={{ color: V.text, fontWeight: 700, margin: "0 0 4px", fontSize: "0.9rem" }}>Drag & Drop or Click</p>
-                                            <p style={{ color: V.dim, fontSize: "0.78rem", margin: 0 }}>PDF, DOC, DOCX, PPT, PPTX</p>
-                                        </div>
-                                    </>
-                                )}
-                                <input ref={(el) => { fileRef.current = el; }} type="file" accept=".pdf,.doc,.docx,.ppt,.pptx"
-                                    onChange={e => { const f = e.target.files?.[0]; if (f) handleFile(f); }}
-                                    style={{ display: "none" }} />
-                            </div>
-                        </div>
-                    </div>
-
-                    <button type="submit" disabled={uploading} style={{
-                        marginTop: 22, padding: "13px 28px",
-                        background: uploading ? V.hover : V.accent,
-                        border: "none", borderRadius: 11,
-                        color: uploading ? V.dim : "#0a0a0a",
-                        fontWeight: 800, fontSize: "0.95rem", fontFamily: FONT_H,
-                        cursor: uploading ? "not-allowed" : "pointer",
-                        display: "flex", alignItems: "center", gap: 10,
-                        transition: "all 0.2s",
-                    }}>
-                        {uploading
-                            ? <><span style={{ display: "inline-block", width: 17, height: 17, border: `2px solid ${V.border}`, borderTopColor: V.accent, borderRadius: "50%", animation: "spin 0.6s linear infinite" }} /> Uploading...</>
-                            : <><Plus size={17} /> Upload Material</>}
-                    </button>
-                </form>
-
-                {/* Uploaded list preview */}
-                {materials.length > 0 && (
-                    <div style={{ marginTop: 28, paddingTop: 24, borderTop: `1px solid ${V.border}` }}>
-                        <div style={{ fontSize: "0.8rem", fontWeight: 800, color: V.dim, textTransform: "uppercase", letterSpacing: "0.06em", marginBottom: 14, fontFamily: FONT_H }}>
-                            <FileText size={13} style={{ verticalAlign: "middle", marginRight: 6 }} />Previously Uploaded ({materials.length})
-                        </div>
-                        <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fill,minmax(260px,1fr))", gap: 10 }}>
-                            {materials.slice(0, 6).map(m => (
-                                <div key={m.id} style={{ display: "flex", alignItems: "center", gap: 10, padding: "11px 14px", background: V.hover, border: `1px solid ${V.border}`, borderRadius: 10, transition: "background 0.2s" }}>
-                                    <span style={{ fontSize: "1.5rem" }}>{extIcon[m.fileType] || "📁"}</span>
-                                    <div style={{ flex: 1, overflow: "hidden" }}>
-                                        <div style={{ fontWeight: 700, color: V.text, fontSize: "0.83rem", whiteSpace: "nowrap", overflow: "hidden", textOverflow: "ellipsis" }}>{m.title}</div>
-                                        <div style={{ fontSize: "0.7rem", color: V.dim }}>{m.assignedClass} · {m.fileType}</div>
-                                    </div>
-                                </div>
-                            ))}
-                        </div>
-                        {materials.length > 6 && (
-                            <Link href="/dashboard/faculty/materials" style={{ display: "inline-block", marginTop: 12, fontSize: "0.82rem", color: V.accent, fontWeight: 700, textDecoration: "none" }}>
-                                View all {materials.length} materials →
-                            </Link>
-                        )}
-                    </div>
-                )}
-            </div>
 
             <style>{`@keyframes spin { to { transform: rotate(360deg); }}`}</style>
 
-            {showModal && <StudentDetailsModal onClose={() => { setShowModal(false); setSelectedStudent(null); }} onSave={handleSaveStudentDetails} readOnly={false} studentName={selectedStudent?.name} studentEmail={selectedStudent?.email} />}
+            {showModal && <StudentDetailsModal onClose={() => { setShowModal(false); setSelectedStudent(null); setIsViewOnly(false); }} onSave={handleSaveStudentDetails} readOnly={isViewOnly} studentName={selectedStudent?.name} studentEmail={selectedStudent?.email} />}
         </div>
     );
 }

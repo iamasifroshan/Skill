@@ -16,16 +16,16 @@ import Link from "next/link";
 
 /* ── All colors use CSS vars from chrome.css for theme support ── */
 const V = {
-    accent: "var(--ds-accent, #d4ff00)",
+    accent: "var(--ds-accent)",
     bg: "var(--ds-bg, #0a0a0a)",
     card: "var(--ds-card, rgba(255,255,255,0.025))",
-    surface: "var(--ds-surface, #111)",
+    surface: "var(--ds-surface, #ffffff)",
     border: "var(--ds-border, rgba(255,255,255,0.06))",
     text: "var(--ds-text, #fff)",
     dim: "var(--ds-text-dim, #6b6b6b)",
     muted: "var(--ds-text-muted, #3a3a3a)",
-    accentSoft: "var(--ds-accent-soft, rgba(212,255,0,0.06))",
-    accentBorder: "var(--ds-accent-border, rgba(212,255,0,0.12))",
+    accentSoft: "var(--ds-accent-soft)",
+    accentBorder: "var(--ds-accent-border)",
     hover: "var(--ds-hover, rgba(255,255,255,0.04))",
 };
 
@@ -139,7 +139,7 @@ export default function AdminOverview({ adminName }: { adminName: string }) {
                             <YAxis domain={[75, 100]} tick={{ fill: V.muted, fontSize: 10 }} axisLine={false} tickLine={false} />
                             <Tooltip {...TT} />
                             <Legend wrapperStyle={{ fontSize: "0.7rem", color: V.dim }} />
-                            <Line type="monotone" dataKey="rate" name="Retention %" stroke="#d4ff00" strokeWidth={2.5} dot={{ r: 3, fill: "#d4ff00" }} />
+                            <Line type="monotone" dataKey="rate" name="Retention %" stroke="#3b82f6" strokeWidth={2.5} dot={{ r: 3, fill: "#3b82f6" }} />
                             <Line type="monotone" dataKey="dropout" name="Dropout %" stroke="#ef4444" strokeWidth={1.5} strokeDasharray="4 2" dot={false} />
                         </LineChart>
                     </ResponsiveContainer>
@@ -155,8 +155,8 @@ export default function AdminOverview({ adminName }: { adminName: string }) {
                             <XAxis dataKey="dept" tick={{ fill: V.muted, fontSize: 10 }} axisLine={false} tickLine={false} />
                             <YAxis domain={[0, 100]} tick={{ fill: V.muted, fontSize: 10 }} axisLine={false} tickLine={false} />
                             <Tooltip {...TT} />
-                            <Bar dataKey="avg" name="Avg %" fill="#d4ff00" radius={[4, 4, 0, 0]} barSize={18} />
-                            <Bar dataKey="retention" name="Retention %" fill="rgba(212,255,0,0.3)" radius={[4, 4, 0, 0]} barSize={18} />
+                            <Bar dataKey="avg" name="Avg %" fill="#3b82f6" radius={[4, 4, 0, 0]} barSize={18} />
+                            <Bar dataKey="retention" name="Retention %" fill="#cbd5e1" radius={[4, 4, 0, 0]} barSize={18} />
                         </BarChart>
                     </ResponsiveContainer>
                 </div>

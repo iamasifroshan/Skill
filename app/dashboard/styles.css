@@ -27,7 +27,7 @@
 }
 
 .text-gradient {
-    background: linear-gradient(135deg, var(--ds-accent, #d4ff00), #a8e600);
+    background: linear-gradient(135deg, var(--ds-accent), #4f46e5);
     -webkit-background-clip: text;
     -webkit-text-fill-color: transparent;
     background-clip: text;
@@ -110,7 +110,7 @@
 
 .trend-bar .fill {
     height: 100%;
-    background: var(--ds-accent, #d4ff00);
+    background: var(--ds-accent);
     border-radius: 3px;
     transition: width 0.6s cubic-bezier(0.22, 1, 0.36, 1);
 }
@@ -120,7 +120,7 @@
     font-size: 0.82rem;
     font-weight: 700;
     text-align: right;
-    color: var(--ds-accent, #d4ff00);
+    color: var(--ds-accent);
 }
 
 /* Skills */
@@ -208,8 +208,8 @@
 }
 
 .demand-badge.emerging {
-    background: var(--ds-accent-soft, rgba(212, 255, 0, 0.08));
-    color: var(--ds-accent, #d4ff00);
+    background: var(--ds-accent-soft);
+    color: var(--ds-accent);
 }
 
 .demand-badge.high {
@@ -243,9 +243,9 @@
 .view-all-btn {
     width: 100%;
     margin-top: 20px;
-    background: var(--ds-accent-soft, rgba(212, 255, 0, 0.06));
-    border: 1px solid var(--ds-accent-border, rgba(212, 255, 0, 0.15));
-    color: var(--ds-accent, #d4ff00);
+    background: var(--ds-accent-soft);
+    border: 1px solid var(--ds-accent-border);
+    color: var(--ds-accent);
     padding: 10px;
     border-radius: 10px;
     font-size: 0.82rem;
@@ -259,7 +259,8 @@
 }
 
 .view-all-btn:hover {
-    background: var(--ds-accent-border, rgba(212, 255, 0, 0.12));
+    background: var(--ds-hover);
+    border-color: var(--ds-accent-border);
 }
 
 /* Skill Bars */
@@ -285,7 +286,7 @@
 
 .progress-fill {
     height: 100%;
-    background: var(--ds-accent, #d4ff00);
+    background: var(--ds-accent);
     border-radius: 3px;
     transition: width 0.6s cubic-bezier(0.22, 1, 0.36, 1);
 }
@@ -359,8 +360,8 @@
     width: 34px;
     height: 34px;
     border-radius: 9px;
-    background: var(--ds-accent, #d4ff00);
-    color: #0a0a0a;
+    background: var(--ds-accent);
+    color: #fff;
     display: flex;
     align-items: center;
     justify-content: center;
@@ -435,9 +436,9 @@
 }
 
 .action-btn:hover {
-    background: var(--ds-accent-soft, rgba(212, 255, 0, 0.06));
-    border-color: var(--ds-accent-border, rgba(212, 255, 0, 0.2));
-    color: var(--ds-accent, #d4ff00);
+    background: var(--ds-accent-soft);
+    border-color: var(--ds-accent-border);
+    color: var(--ds-accent);
 }
 
 /* Insights */
@@ -486,8 +487,8 @@
     font-weight: 800;
     text-transform: uppercase;
     letter-spacing: 0.06em;
-    background: var(--ds-accent-soft, rgba(212, 255, 0, 0.08));
-    color: var(--ds-accent, #d4ff00);
+    background: var(--ds-accent-soft);
+    color: var(--ds-accent);
     padding: 2px 8px;
     border-radius: 5px;
     margin-bottom: 10px;

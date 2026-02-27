@@ -11,7 +11,7 @@ const V = {
     border: "var(--ds-border, rgba(255,255,255,0.06))",
     text: "var(--ds-text, #fff)",
     dim: "var(--ds-text-dim, #6b6b6b)",
-    accent: "var(--ds-accent, #d4ff00)",
+    accent: "var(--ds-accent)",
 };
 
 const SUBJECTS = ["Math", "Data Structures", "DBMS", "Networks", "OS"];
@@ -59,30 +59,31 @@ export default function StudentDetailsModal({ onClose, onSave, readOnly = false,
     const handleSave = async () => {
         if (!studentEmail) return;
 
-        const updateData = {
-            attendance: formData.attendance,
-            subjects: SUBJECTS.map((name, i) => ({
-                name,
-                marks: formData.marks[i]
-            })),
-            syllabusProgress: formData.syllabusProgress,
-            skillGaps: formData.skillGaps,
-        };
-
         try {
-            await updateDoc(doc(db, "students", studentEmail), updateData);
+            const docRef = doc(db, "students", studentEmail);
+            const snap = await getDoc(docRef);
+            const existingData = snap.exists() ? snap.data() : {};
+
+            const updateData = {
+                ...existingData,
+                attendance: formData.attendance,
+                subjects: SUBJECTS.map((name, i) => ({
+                    name,
+                    marks: formData.marks[i]
+                })),
+                syllabusProgress: formData.syllabusProgress,
+                skillGaps: formData.skillGaps,
+                userId: studentEmail,
+                email: studentEmail,
+                name: studentName || existingData.name || "Student",
+            };
+
+            await setDoc(docRef, updateData, { merge: true });
             onSave(formData);
             onClose();
         } catch (e) {
-            // Fallback for non-existent docs
-            await setDoc(doc(db, "students", studentEmail), {
-                userId: studentEmail,
-                name: studentName,
-                email: studentEmail,
-                ...updateData
-            });
-            onSave(formData);
-            onClose();
+            console.error("Save failed:", e);
+            alert("Failed to save changes. Please check permissions.");
         }
     };
 

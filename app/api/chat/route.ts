@@ -2,14 +2,26 @@ import { NextResponse } from "next/server";
 import { GoogleGenerativeAI } from "@google/generative-ai";
 
 const genAI = new GoogleGenerativeAI(process.env.GEMINI_API_KEY || "");
-const model = genAI.getGenerativeModel({ model: "gemini-1.5-flash" });
+const model = genAI.getGenerativeModel({ model: "models/gemini-1.5-flash" });
 
 export async function POST(req: Request) {
     try {
         const { message, studentData } = await req.json();
+        console.log("Chat Request received. Message:", message);
+        console.log("Student Data present:", !!studentData);
+
+        if (!process.env.GEMINI_API_KEY) {
+            console.error("GEMINI_API_KEY is missing from environment variables!");
+            return NextResponse.json({ reply: "API Key Configuration Error" }, { status: 500 });
+        }
+
+        const key = process.env.GEMINI_API_KEY.trim();
+        console.log(`API Key Length: ${key.length}, Start: ${key.substring(0, 5)}`);
+        const fs = require('fs');
+        fs.appendFileSync('chat_error.log', `\nKey Length: ${key.length}, Start: ${key.substring(0, 5)}\n`);
 
         let contextPrompt = "";
-        if (studentData) {
+        if (studentData && studentData.name) {
             contextPrompt = `
                 The user is a student with the following profile:
                 - Name: ${studentData.name}
@@ -21,6 +33,8 @@ export async function POST(req: Request) {
         } else {
             contextPrompt = `The user is a Faculty member or Admin overseeing the SkillSync platform. Provide general assistance regarding platform features or academic management.`;
         }
+
+        console.log("Using Context Prompt Type:", studentData && studentData.name ? "Student" : "General");
 
         const prompt = `
             You are SkillSync AI, a smart academic assistant.
@@ -40,8 +54,16 @@ export async function POST(req: Request) {
         const text = response.text();
 
         return NextResponse.json({ reply: text });
-    } catch (error) {
-        console.error("Chat Error:", error);
+    } catch (error: any) {
+        const errorMsg = `\n[${new Date().toISOString()}] Chat Error: ${error.message || error}\nStack: ${error.stack}\n`;
+        try {
+            const fs = require('fs');
+            fs.appendFileSync('chat_error.log', errorMsg);
+        } catch (fileErr) {
+            console.error("Failed to write to log file:", fileErr);
+        }
+
+        console.error("Chat Error Detail:", error.message || error);
         return NextResponse.json({ reply: "I'm sorry, I encountered an error processing your request." }, { status: 500 });
     }
 }

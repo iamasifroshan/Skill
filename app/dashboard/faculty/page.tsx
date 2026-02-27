@@ -19,11 +19,11 @@ export default async function FacultyPage() {
                 <div style={{ display: "flex", alignItems: "center", gap: 12, marginBottom: 8 }}>
                     <div style={{
                         width: 10, height: 10, borderRadius: "50%",
-                        background: "var(--ds-accent, #d4ff00)",
-                        boxShadow: "0 0 10px var(--ds-accent, #d4ff00)",
+                        background: "var(--ds-accent)",
+                        boxShadow: "0 0 10px var(--ds-accent)",
                     }} />
                     <span style={{
-                        color: "var(--ds-accent, #d4ff00)",
+                        color: "var(--ds-accent)",
                         fontSize: "0.85rem", fontWeight: 700,
                         textTransform: "uppercase", letterSpacing: "0.08em",
                         fontFamily: "var(--font-display, 'Outfit', sans-serif)",

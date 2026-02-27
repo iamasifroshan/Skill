@@ -26,12 +26,12 @@ const V = {
     text: "var(--ds-text, #fff)",
     dim: "var(--ds-text-dim, #6b6b6b)",
     muted: "var(--ds-text-muted, #3a3a3a)",
-    accent: "var(--ds-accent, #d4ff00)",
-    accentSoft: "var(--ds-accent-soft, rgba(212,255,0,0.06))",
-    accentBorder: "var(--ds-accent-border, rgba(212,255,0,0.12))",
+    accent: "var(--ds-accent)",
+    accentSoft: "var(--ds-accent-soft)",
+    accentBorder: "var(--ds-accent-border)",
     hover: "var(--ds-hover, rgba(255,255,255,0.04))",
-    surface: "var(--ds-surface, #111)",
-    searchBg: "var(--ds-search-bg, #111)",
+    surface: "var(--ds-surface, #ffffff)",
+    searchBg: "var(--ds-search-bg, #ffffff)",
 };
 const FONT_H = "var(--font-display, 'Outfit', sans-serif)";
 
@@ -66,27 +66,40 @@ export default function CurriculumPage() {
     });
 
     const { data: session } = useSession();
-    const [liveProgress, setLiveProgress] = useState(0);
+    const [completedTopics, setCompletedTopics] = useState<string[]>([]);
 
     useEffect(() => {
         if (session?.user?.email) {
-            const saved = localStorage.getItem(`skillsync-student-data-${session.user.email}`);
+            const saved = localStorage.getItem(`skillsync-student-topics-${session.user.email}`);
             if (saved) {
                 try {
-                    const data = JSON.parse(saved);
-                    setLiveProgress(data.syllabusProgress || 0);
+                    setCompletedTopics(JSON.parse(saved));
                 } catch (e) { }
             }
         }
     }, [session]);
 
+    const toggleTopic = (topicId: string) => {
+        setCompletedTopics(prev => {
+            const next = prev.includes(topicId) ? prev.filter(id => id !== topicId) : [...prev, topicId];
+            if (session?.user?.email) {
+                localStorage.setItem(`skillsync-student-topics-${session.user.email}`, JSON.stringify(next));
+            }
+            return next;
+        });
+    };
+
     const syllabusTopics = [
-        { subject: "Data Structures", topics: ["Arrays & Linked Lists", "Stacks & Queues", "Trees & Graphs", "Hashing", "Sorting & Searching"], progress: liveProgress },
-        { subject: "DBMS", topics: ["ER Models", "Normalization (1NF–BCNF)", "SQL & PL/SQL", "Transactions & ACID", "NoSQL Overview"], progress: liveProgress > 20 ? 75 : 0 }, // slightly different for variety
-        { subject: "Computer Networks", topics: ["OSI & TCP/IP Model", "Data Link Layer", "Network Layer (IP)", "Transport Layer", "Application Protocols"], progress: Math.max(0, liveProgress - 10) },
-        { subject: "Operating Systems", topics: ["Process Management", "CPU Scheduling", "Memory Management", "File Systems", "Deadlock Handling"], progress: Math.max(0, liveProgress - 20) },
-        { subject: "Mathematics", topics: ["Discrete Math", "Linear Algebra", "Statistics & Probability", "Graph Theory", "Calculus Fundamentals"], progress: liveProgress },
-    ];
+        { subject: "Data Structures", topics: ["Arrays & Linked Lists", "Stacks & Queues", "Trees & Graphs", "Hashing", "Sorting & Searching"] },
+        { subject: "DBMS", topics: ["ER Models", "Normalization (1NF–BCNF)", "SQL & PL/SQL", "Transactions & ACID", "NoSQL Overview"] },
+        { subject: "Computer Networks", topics: ["OSI & TCP/IP Model", "Data Link Layer", "Network Layer (IP)", "Transport Layer", "Application Protocols"] },
+        { subject: "Operating Systems", topics: ["Process Management", "CPU Scheduling", "Memory Management", "File Systems", "Deadlock Handling"] },
+        { subject: "Mathematics", topics: ["Discrete Math", "Linear Algebra", "Statistics & Probability", "Graph Theory", "Calculus Fundamentals"] },
+    ].map(sub => {
+        const completedCount = sub.topics.filter(t => completedTopics.includes(`${sub.subject}-${t}`)).length;
+        const progress = Math.round((completedCount / sub.topics.length) * 100);
+        return { ...sub, progress };
+    });
 
     return (
         <div style={{ maxWidth: 1200, margin: "0 auto" }}>
@@ -282,23 +295,27 @@ export default function CurriculumPage() {
                                 <div style={{ display: "flex", alignItems: "center", gap: 12 }}>
                                     <span style={{ fontSize: "0.85rem", fontWeight: 700, color: V.accent }}>{sub.progress}% complete</span>
                                     <div style={{ width: 120, height: 6, background: V.hover, borderRadius: 3, overflow: "hidden" }}>
-                                        <div style={{ width: `${sub.progress}%`, height: "100%", background: "#d4ff00", borderRadius: 3, transition: "width 1s ease" }} />
+                                        <div style={{ width: `${sub.progress}%`, height: "100%", background: "var(--ds-accent)", borderRadius: 3, transition: "width 1s ease" }} />
                                     </div>
                                 </div>
                             </div>
                             <div style={{ display: "flex", flexWrap: "wrap", gap: 10 }}>
                                 {sub.topics.map((topic, i) => {
-                                    const done = i < Math.ceil(sub.topics.length * sub.progress / 100);
+                                    const topicId = `${sub.subject}-${topic}`;
+                                    const done = completedTopics.includes(topicId);
                                     return (
-                                        <div key={topic} style={{
-                                            display: "flex", alignItems: "center", gap: 8,
-                                            padding: "8px 14px",
-                                            background: done ? V.accentSoft : V.hover,
-                                            border: `1px solid ${done ? V.accentBorder : V.border}`,
-                                            borderRadius: 8, fontSize: "0.85rem",
-                                            color: done ? V.text : V.dim, fontWeight: done ? 600 : 400,
-                                            transition: "all 0.2s",
-                                        }}>
+                                        <div key={topic}
+                                            onClick={() => toggleTopic(topicId)}
+                                            style={{
+                                                cursor: "pointer",
+                                                display: "flex", alignItems: "center", gap: 8,
+                                                padding: "8px 14px",
+                                                background: done ? V.accentSoft : V.hover,
+                                                border: `1px solid ${done ? V.accentBorder : V.border}`,
+                                                borderRadius: 8, fontSize: "0.85rem",
+                                                color: done ? V.text : V.dim, fontWeight: done ? 600 : 400,
+                                                transition: "all 0.2s",
+                                            }}>
                                             {done
                                                 ? <span style={{ fontSize: "0.7rem", color: V.accent }}>✓</span>
                                                 : <span style={{ fontSize: "0.7rem", color: V.muted }}>○</span>

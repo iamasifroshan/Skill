@@ -2,7 +2,7 @@
 
 import { useState, useEffect } from "react";
 import { useSession } from "next-auth/react";
-import { Users, TrendingDown, Award, AlertCircle, BookOpen, Target } from "lucide-react";
+import { Users, TrendingDown, Award, AlertCircle, BookOpen, Target, Sparkles } from "lucide-react";
 import StudentDetailsModal from "./StudentDetailsModal";
 import { useStudentData } from "@/lib/hooks/useStudentData";
 
@@ -12,9 +12,10 @@ const V = {
     border: "var(--ds-border, rgba(255,255,255,0.06))",
     text: "var(--ds-text, #fff)",
     dim: "var(--ds-text-dim, #6b6b6b)",
-    accent: "var(--ds-accent, #d4ff00)",
-    accentSoft: "var(--ds-accent-soft, rgba(212,255,0,0.06))",
-    accentBorder: "var(--ds-accent-border, rgba(212,255,0,0.12))",
+    accent: "var(--ds-accent)",
+    accentSoft: "var(--ds-accent-soft)",
+    accentBorder: "var(--ds-accent-border)",
+    hover: "var(--ds-hover, rgba(255,255,255,0.04))",
 };
 
 const FONT_H = "var(--font-display, 'Outfit', sans-serif)";
@@ -57,6 +58,7 @@ export default function DashboardStats({ role }: { role: string }) {
     const { data: session } = useSession();
     const [isClient, setIsClient] = useState(false);
     const [showModal, setShowModal] = useState(false);
+    const [isViewOnly, setIsViewOnly] = useState(false);
 
     // Real-time student data
     const { student, insights, loading } = useStudentData(session?.user?.email);
@@ -85,9 +87,9 @@ export default function DashboardStats({ role }: { role: string }) {
 
     const studentStats = [
         {
-            label: "Academic Standing",
-            value: insights ? `${Math.round(insights.percentile)}%` : "...",
-            trend: "Top Percentile",
+            label: "CGPA",
+            value: insights ? insights.cgpa.toFixed(2) : "...",
+            trend: "10.0 Scale",
             trendUp: true,
             icon: Award
         },
@@ -106,11 +108,11 @@ export default function DashboardStats({ role }: { role: string }) {
             icon: Users
         },
         {
-            label: "Risk Level",
-            value: insights ? insights.riskLevel : "...",
-            trend: insights ? `${insights.riskScore}% Score` : "Analysing",
-            trendUp: insights ? insights.riskLevel === "Low" : true,
-            icon: AlertCircle
+            label: "AI Rank",
+            value: insights ? `${Math.round(insights.percentile)}%` : "...",
+            trend: "Percentile",
+            trendUp: true,
+            icon: TrendingDown
         },
     ];
 
@@ -129,20 +131,21 @@ export default function DashboardStats({ role }: { role: string }) {
     return (
         <div style={{ position: "relative" }}>
             {isClient && role === "STUDENT" && (
-                <button onClick={() => setShowModal(true)} style={{
-                    position: "absolute", right: 0, top: "-54px",
-                    background: V.accentSoft, border: `1px solid ${V.accentBorder}`, color: V.accent,
-                    padding: "8px 16px", borderRadius: "8px", fontSize: "0.85rem", fontWeight: 600,
-                    display: "flex", alignItems: "center", gap: "8px", cursor: "pointer", zIndex: 10,
-                    transition: "0.2s"
-                }} onMouseOver={(e) => e.currentTarget.style.background = "rgba(212,255,0,0.12)"} onMouseOut={(e) => e.currentTarget.style.background = V.accentSoft}>
-                    <Award size={16} /> Update Real-time
-                </button>
+                <div style={{ position: "absolute", right: 0, top: "-54px" }}>
+                    <button onClick={() => { setIsViewOnly(true); setShowModal(true); }} style={{
+                        background: V.accentSoft, border: `1px solid ${V.accentBorder}`, color: V.accent,
+                        padding: "8px 16px", borderRadius: "8px", fontSize: "0.85rem", fontWeight: 600,
+                        display: "flex", alignItems: "center", gap: "8px", cursor: "pointer",
+                        transition: "0.2s"
+                    }} onMouseOver={(e) => e.currentTarget.style.background = "var(--ds-hover)"} onMouseOut={(e) => e.currentTarget.style.background = V.accentSoft}>
+                        <Users size={16} /> My Full Profile & Detailed Analytics
+                    </button>
+                </div>
             )}
             <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fit, minmax(240px, 1fr))", gap: 12, marginBottom: 28 }}>
                 {stats.map((s, i) => <StatCard key={i} {...s} />)}
             </div>
-            {isClient && showModal && <StudentDetailsModal onClose={() => setShowModal(false)} onSave={handleSave} readOnly={false} studentName={session?.user?.name || ""} studentEmail={session?.user?.email || ""} />}
+            {isClient && showModal && <StudentDetailsModal onClose={() => { setShowModal(false); setIsViewOnly(false); }} onSave={handleSave} readOnly={isViewOnly} studentName={session?.user?.name || ""} studentEmail={session?.user?.email || ""} />}
         </div>
     );
 }

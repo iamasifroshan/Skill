@@ -9,14 +9,14 @@ const V = {
     text: "var(--ds-text, #fff)",
     dim: "var(--ds-text-dim, #6b6b6b)",
     muted: "var(--ds-text-muted, #3a3a3a)",
-    accent: "var(--ds-accent, #d4ff00)",
-    accentSoft: "var(--ds-accent-soft, rgba(212,255,0,0.06))",
-    accentBorder: "var(--ds-accent-border, rgba(212,255,0,0.12))",
+    accent: "var(--ds-accent)",
+    accentSoft: "var(--ds-accent-soft)",
+    accentBorder: "var(--ds-accent-border)",
     hover: "var(--ds-hover, rgba(255,255,255,0.04))",
 };
 const FONT_H = "var(--font-display, 'Outfit', sans-serif)";
 
-const RoadmapStep = ({ title, desc, status, difficulty }: any) => (
+const RoadmapStep = ({ title, desc, status, difficulty, videoUrl }: any) => (
     <div style={{ display: "flex", gap: 24, position: "relative", paddingBottom: 32 }}>
         <div style={{ display: "flex", flexDirection: "column", alignItems: "center", paddingTop: 4 }}>
             {status === "completed"
@@ -42,24 +42,29 @@ const RoadmapStep = ({ title, desc, status, difficulty }: any) => (
             </div>
             <h4 style={{ margin: "0 0 8px", fontFamily: FONT_H, fontWeight: 800, color: V.text, fontSize: "1rem" }}>{title}</h4>
             <p style={{ fontSize: "0.85rem", color: V.dim, margin: "0 0 16px", lineHeight: 1.5 }}>{desc}</p>
-            <button style={{
-                background: "none", border: "none", color: V.accent,
-                fontSize: "0.85rem", fontWeight: 600,
-                display: "flex", alignItems: "center", gap: 8,
-                cursor: "pointer", padding: 0,
-            }}>
+            <a
+                href={videoUrl || "https://www.youtube.com/results?search_query=programming+tutorial"}
+                target="_blank"
+                rel="noopener noreferrer"
+                style={{
+                    background: "none", border: "none", color: V.accent,
+                    fontSize: "0.85rem", fontWeight: 600,
+                    display: "flex", alignItems: "center", gap: 8,
+                    cursor: "pointer", padding: 0, textDecoration: "none"
+                }}
+            >
                 Continue Learning <ArrowRight size={14} />
-            </button>
+            </a>
         </div>
     </div>
 );
 
 export default function SkillRoadmap() {
     const steps = [
-        { title: "Advanced React Patterns", desc: "Master HOCs, Render Props, and Custom Hooks for enterprise apps.", status: "completed", difficulty: "Intermediate" },
-        { title: "Node.js Microservices", desc: "Building scalable backend architectures with RabbitMQ and Redis.", status: "current", difficulty: "Advanced" },
-        { title: "System Design for AI", desc: "Scaling LLM inferencing and vector database integrations.", status: "pending", difficulty: "Expert" },
-        { title: "Cloud Native Deployment", desc: "Kubernetes orchestration and CI/CD automation with GitHub Actions.", status: "pending", difficulty: "Advanced" },
+        { title: "Advanced React Patterns", desc: "Master HOCs, Render Props, and Custom Hooks for enterprise apps.", status: "completed", difficulty: "Intermediate", videoUrl: "https://www.youtube.com/watch?v=bMknfKXIFA8" },
+        { title: "Node.js Microservices", desc: "Building scalable backend architectures with RabbitMQ and Redis.", status: "current", difficulty: "Advanced", videoUrl: "https://www.youtube.com/watch?v=1NCxQNgG_PE" },
+        { title: "System Design for AI", desc: "Scaling LLM inferencing and vector database integrations.", status: "pending", difficulty: "Expert", videoUrl: "https://www.youtube.com/watch?v=bA31KhaLZNo" },
+        { title: "Cloud Native Deployment", desc: "Kubernetes orchestration and CI/CD automation with GitHub Actions.", status: "pending", difficulty: "Advanced", videoUrl: "https://www.youtube.com/watch?v=X48VuDVv0do" },
     ];
 
     return (

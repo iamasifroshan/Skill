@@ -127,7 +127,7 @@ export default function LoginPage() {
             <span className="login-cred-role">Student</span>
             <code>aaravsharma.student@skillsync.com</code>
           </div>
-          <div className="login-cred-pw" style={{ marginTop: "12px", color: "#d4ff00", fontWeight: 700, fontSize: "0.75rem" }}>
+          <div className="login-cred-pw" style={{ marginTop: "12px", color: "#3b82f6", fontWeight: 700, fontSize: "0.75rem" }}>
             NOTE: All faculty and student emails from the system now work!
           </div>
           <div className="login-cred-pw">
@@ -137,7 +137,7 @@ export default function LoginPage() {
 
         <div className="login-signup-prompt" style={{ marginTop: "24px", textAlign: "center", fontSize: "0.88rem" }}>
           <span style={{ color: "#6b6b6b" }}>Don't have an account? </span>
-          <Link href="/register" style={{ color: "#d4ff00", fontWeight: 700, textDecoration: "none" }}>
+          <Link href="/register" style={{ color: "#3b82f6", fontWeight: 700, textDecoration: "none" }}>
             Create one
           </Link>
         </div>
@@ -173,7 +173,7 @@ export default function LoginPage() {
                     width: 600px;
                     height: 600px;
                     background: radial-gradient(50% 50% at 50% 50%,
-                        rgba(212, 255, 0, 0.08) 0%,
+                        rgba(59, 130, 246, 0.08) 0%,
                         transparent 70%);
                     border-radius: 50%;
                     pointer-events: none;
@@ -197,7 +197,7 @@ export default function LoginPage() {
 
                 .login-back:hover { opacity: 0.7; }
 
-                .login-back :global(svg) { color: #d4ff00; }
+                .login-back :global(svg) { color: #3b82f6; }
 
                 .login-card {
                     width: 100%;
@@ -227,7 +227,7 @@ export default function LoginPage() {
                     margin: 0 auto 20px;
                 }
 
-                .login-logo-mark :global(svg) { color: #d4ff00; }
+                .login-logo-mark :global(svg) { color: #3b82f6; }
 
                 .login-header h1 {
                     font-family: var(--font-display, 'Outfit', sans-serif);
@@ -288,15 +288,15 @@ export default function LoginPage() {
                 }
 
                 .login-field input:focus {
-                    border-color: #d4ff00;
-                    box-shadow: 0 0 0 3px rgba(212, 255, 0, 0.1);
+                    border-color: #3b82f6;
+                    box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.1);
                 }
 
                 .login-submit {
                     width: 100%;
                     margin-top: 6px;
-                    background: #d4ff00;
-                    color: #0a0a0a;
+                    background: #3b82f6;
+                    color: #ffffff;
                     border: none;
                     border-radius: 10px;
                     padding: 14px;
@@ -313,9 +313,9 @@ export default function LoginPage() {
                 }
 
                 .login-submit:hover {
-                    background: #0a0a0a;
-                    color: #d4ff00;
-                    box-shadow: 0 0 0 2px #d4ff00;
+                    background: #2563eb;
+                    color: #ffffff;
+                    box-shadow: 0 0 0 2px #3b82f6;
                     transform: translateY(-1px);
                 }
 
@@ -364,7 +364,7 @@ export default function LoginPage() {
 
                 .login-cred-role {
                     font-weight: 700;
-                    color: #d4ff00;
+                    color: #3b82f6;
                     width: 56px;
                     font-size: 0.7rem;
                     text-transform: uppercase;

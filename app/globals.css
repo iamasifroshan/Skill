@@ -21,10 +21,10 @@
     --color-graphite: #3a3a3a;
 
     /* Accent — single vivid punch */
-    --accent: #d4ff00;
-    /* electric lime */
-    --accent-dark: #aacc00;
-    --accent-subtle: rgba(212, 255, 0, 0.08);
+    --accent: #2563eb;
+    /* electric lime -> primary blue */
+    --accent-dark: #1d4ed8;
+    --accent-subtle: rgba(37, 99, 235, 0.08);
 
     /* Secondary accent */
     --accent-blue: #0057ff;

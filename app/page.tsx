@@ -378,7 +378,7 @@ export default function LandingPage() {
             <div className="how-step animate-fade-up delay-1">
               <span className="how-step-num">STEP 01</span>
               <div className="how-step-icon">
-                <Upload size={24} color="#d4ff00" />
+                <Upload size={24} color="#3b82f6" />
               </div>
               <h3 className="how-step-title">Connect Your Data</h3>
               <p className="how-step-desc">
@@ -390,7 +390,7 @@ export default function LandingPage() {
             <div className="how-step animate-fade-up delay-2">
               <span className="how-step-num">STEP 02</span>
               <div className="how-step-icon">
-                <Cpu size={24} color="#d4ff00" />
+                <Cpu size={24} color="#3b82f6" />
               </div>
               <h3 className="how-step-title">AI Analyzes Everything</h3>
               <p className="how-step-desc">
@@ -402,7 +402,7 @@ export default function LandingPage() {
             <div className="how-step animate-fade-up delay-3">
               <span className="how-step-num">STEP 03</span>
               <div className="how-step-icon">
-                <Rocket size={24} color="#d4ff00" />
+                <Rocket size={24} color="#3b82f6" />
               </div>
               <h3 className="how-step-title">Act on Insights</h3>
               <p className="how-step-desc">
@@ -518,7 +518,7 @@ export default function LandingPage() {
           <div className="footer-inner">
             <div className="footer-logo">
               <div className="footer-logo-mark">
-                <GraduationCap size={16} color="#d4ff00" />
+                <GraduationCap size={16} color="#3b82f6" />
               </div>
               SkillSync
             </div>

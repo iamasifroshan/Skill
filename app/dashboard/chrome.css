@@ -4,39 +4,39 @@
    ============================================================ */
 
 /* ── Theme variables ── */
-[data-theme="dark"],
-:root {
-    --ds-bg: #0a0a0a;
-    --ds-surface: #111;
-    --ds-card: rgba(255, 255, 255, 0.025);
-    --ds-border: rgba(255, 255, 255, 0.06);
-    --ds-text: #ffffff;
-    --ds-text-dim: #6b6b6b;
-    --ds-text-muted: #3a3a3a;
-    --ds-accent: #d4ff00;
-    --ds-accent-soft: rgba(212, 255, 0, 0.06);
-    --ds-accent-border: rgba(212, 255, 0, 0.12);
-    --ds-hover: rgba(255, 255, 255, 0.04);
-    --ds-danger: #ef4444;
-    --ds-search-bg: #111;
-    --ds-input-placeholder: #3a3a3a;
-}
-
+:root,
 [data-theme="light"] {
-    --ds-bg: #f5f4f0;
+    --ds-bg: #f8fafc;
     --ds-surface: #ffffff;
     --ds-card: #ffffff;
-    --ds-border: rgba(0, 0, 0, 0.08);
-    --ds-text: #0a0a0a;
-    --ds-text-dim: #6b6b6b;
-    --ds-text-muted: #9a9a9a;
-    --ds-accent: #0a0a0a;
-    --ds-accent-soft: rgba(0, 0, 0, 0.04);
-    --ds-accent-border: rgba(0, 0, 0, 0.1);
-    --ds-hover: rgba(0, 0, 0, 0.03);
+    --ds-border: #e2e8f0;
+    --ds-text: #020617;
+    --ds-text-dim: #334155;
+    --ds-text-muted: #475569;
+    --ds-accent: #2563eb;
+    --ds-accent-soft: rgba(37, 99, 235, 0.08);
+    --ds-accent-border: rgba(37, 99, 235, 0.2);
+    --ds-hover: #f1f5f9;
     --ds-danger: #ef4444;
-    --ds-search-bg: #f0efeb;
-    --ds-input-placeholder: #b0b0b0;
+    --ds-search-bg: #ffffff;
+    --ds-input-placeholder: #94a3b8;
+}
+
+[data-theme="dark"] {
+    --ds-bg: #020617;
+    --ds-surface: #0f172a;
+    --ds-card: #111827;
+    --ds-border: #1e293b;
+    --ds-text: #f8fafc;
+    --ds-text-dim: #cbd5e1;
+    --ds-text-muted: #94a3b8;
+    --ds-accent: #3b82f6;
+    --ds-accent-soft: rgba(59, 130, 246, 0.15);
+    --ds-accent-border: rgba(59, 130, 246, 0.3);
+    --ds-hover: #1e293b;
+    --ds-danger: #ef4444;
+    --ds-search-bg: #0f172a;
+    --ds-input-placeholder: #64748b;
 }
 
 /* ── Shell ── */
@@ -103,12 +103,7 @@
     justify-content: center;
     flex-shrink: 0;
     transition: transform 0.3s cubic-bezier(0.34, 1.56, 0.64, 1), background 0.3s;
-    color: #d4ff00;
-}
-
-[data-theme="light"] .ds-logo-mark {
-    color: #0a0a0a;
-    border-color: rgba(0, 0, 0, 0.12);
+    color: var(--ds-accent);
 }
 
 .ds-logo:hover .ds-logo-mark {
@@ -128,19 +123,13 @@
     font-weight: 800;
     text-transform: uppercase;
     letter-spacing: 0.1em;
-    color: #d4ff00;
-    background: rgba(212, 255, 0, 0.08);
-    border: 1px solid rgba(212, 255, 0, 0.15);
+    color: var(--ds-accent);
+    background: var(--ds-accent-soft);
+    border: 1px solid var(--ds-accent-border);
     padding: 2px 8px;
     border-radius: 6px;
     white-space: nowrap;
     flex-shrink: 0;
-}
-
-[data-theme="light"] .ds-role-badge {
-    color: #0a0a0a;
-    background: rgba(0, 0, 0, 0.06);
-    border-color: rgba(0, 0, 0, 0.12);
 }
 
 /* Navigation */
@@ -335,8 +324,9 @@
     width: 32px;
     height: 32px;
     border-radius: 8px;
-    background: #d4ff00;
-    color: #0a0a0a;
+    background: var(--ds-accent-soft);
+    color: var(--ds-accent);
+    border: 1px solid var(--ds-accent-border);
     display: flex;
     align-items: center;
     justify-content: center;
@@ -345,11 +335,6 @@
     font-size: 0.72rem;
     letter-spacing: -0.02em;
     flex-shrink: 0;
-}
-
-[data-theme="light"] .ds-user-avatar {
-    background: #0a0a0a;
-    color: #fff;
 }
 
 .ds-user-info {
@@ -376,13 +361,14 @@
 .no-scrollbar::-webkit-scrollbar {
     display: none;
 }
+
 .no-scrollbar {
     -ms-overflow-style: none;
     scrollbar-width: none;
 }
 
 .text-gradient {
-    background: linear-gradient(135deg, #d4ff00 0%, #a855f7 100%);
+    background: linear-gradient(135deg, var(--ds-accent) 0%, #4f46e5 100%);
     -webkit-background-clip: text;
     -webkit-text-fill-color: transparent;
 }
