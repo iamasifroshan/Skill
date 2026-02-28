@@ -95,7 +95,7 @@ export default function AdminOverview({ adminName }: { adminName: string }) {
             </div>
 
             {/* Summary Cards */}
-            <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fit,minmax(195px,1fr))", gap: 12 }}>
+            <div style={{ display: "grid", gridTemplateColumns: "repeat(3,1fr)", gap: 12 }}>
                 {cards.map(c => (
                     <div key={c.label} style={{ ...CARD, display: "flex", alignItems: "center", gap: 14, padding: "18px 20px" }}>
                         <div style={{ width: 40, height: 40, borderRadius: 10, background: V.accentSoft, border: `1px solid ${V.accentBorder}`, display: "flex", alignItems: "center", justifyContent: "center", flexShrink: 0 }}>
@@ -111,7 +111,7 @@ export default function AdminOverview({ adminName }: { adminName: string }) {
             </div>
 
             {/* Quick Links */}
-            <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fit,minmax(180px,1fr))", gap: 10 }}>
+            <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fill,minmax(200px,1fr))", gap: 10 }}>
                 {links.map(q => (
                     <Link key={q.label} href={q.href} style={{ ...CARD, textDecoration: "none", display: "flex", alignItems: "center", gap: 12, cursor: "pointer", padding: "16px 18px" }}>
                         <div style={{ width: 34, height: 34, borderRadius: 9, background: V.accentSoft, border: `1px solid ${V.accentBorder}`, display: "flex", alignItems: "center", justifyContent: "center" }}>
@@ -124,13 +124,13 @@ export default function AdminOverview({ adminName }: { adminName: string }) {
             </div>
 
             {/* Charts */}
-            <div style={{ display: "grid", gridTemplateColumns: "280px 1fr", gap: 16 }}>
+            <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: 16 }}>
                 {/* Risk Donut */}
                 <div style={CARD}>
                     <h3 style={{ fontFamily: FONT_H, fontWeight: 800, color: V.text, fontSize: "0.92rem", margin: "0 0 14px", letterSpacing: "-0.02em" }}>Risk Distribution</h3>
-                    <ResponsiveContainer width="100%" height={140}>
+                    <ResponsiveContainer width="100%" height={200}>
                         <PieChart>
-                            <Pie data={RISK_PIE} dataKey="value" cx="50%" cy="50%" innerRadius={38} outerRadius={62} paddingAngle={3}>
+                            <Pie data={RISK_PIE} dataKey="value" cx="50%" cy="50%" innerRadius={55} outerRadius={82} paddingAngle={3}>
                                 {RISK_PIE.map((e, i) => <Cell key={i} fill={e.color} />)}
                             </Pie>
                             <Tooltip {...TT} />
@@ -148,6 +148,23 @@ export default function AdminOverview({ adminName }: { adminName: string }) {
                     <div style={{ marginTop: 14, paddingTop: 12, borderTop: `1px solid ${V.border}`, fontSize: "0.72rem", color: V.muted }}>
                         {HIGH_RISK} students need immediate intervention
                     </div>
+                </div>
+
+                {/* Department Performance Chart */}
+                <div style={CARD}>
+                    <h3 style={{ fontFamily: FONT_H, fontWeight: 800, color: V.text, fontSize: "0.92rem", margin: "0 0 4px", letterSpacing: "-0.02em" }}>Department Performance</h3>
+                    <p style={{ fontSize: "0.72rem", color: V.muted, margin: "0 0 14px" }}>Average performance score by department</p>
+                    <ResponsiveContainer width="100%" height={200}>
+                        <BarChart data={DEPT_PERF} margin={{ top: 5, right: 10, left: -20, bottom: 0 }}>
+                            <CartesianGrid strokeDasharray="3 3" stroke="rgba(128,128,128,0.15)" vertical={false} />
+                            <XAxis dataKey="dept" tick={{ fill: "gray", fontSize: 11 }} axisLine={false} tickLine={false} />
+                            <YAxis domain={[0, 100]} tick={{ fill: "gray", fontSize: 11 }} axisLine={false} tickLine={false} />
+                            <Tooltip {...TT} />
+                            <Legend wrapperStyle={{ fontSize: "0.75rem", color: "gray" }} />
+                            <Bar dataKey="avg" name="Avg Performance" fill={V.accent} radius={[5, 5, 0, 0]} barSize={20} />
+                            <Bar dataKey="retention" name="Retention %" fill="#10b981" radius={[5, 5, 0, 0]} barSize={20} />
+                        </BarChart>
+                    </ResponsiveContainer>
                 </div>
             </div>
 

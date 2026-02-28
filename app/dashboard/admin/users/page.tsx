@@ -205,7 +205,7 @@ export default function UserManagementPage() {
 
                         <div style={{ marginTop: "12px" }}>
                             <button type="submit" disabled={loading} style={{ width: "100%", padding: "14px", background: "var(--ds-accent)", color: "white", borderRadius: "10px", border: "none", fontWeight: 700, fontSize: "0.95rem", display: "flex", alignItems: "center", justifyContent: "center", gap: "8px", cursor: loading ? "not-allowed" : "pointer", opacity: loading ? 0.7 : 1 }}>
-                                {loading ? <Loader2 size={18} className="spin" /> : <><Save size={18} /> Provision {role.toLowerCase()} Account</>}
+                                {loading ? <Loader2 size={18} className="spin" /> : <><Save size={18} /> Provision {role.charAt(0) + role.slice(1).toLowerCase()} Account</>}
                             </button>
                         </div>
                     </form>
